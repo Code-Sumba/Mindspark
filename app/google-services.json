@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "792257449245",
+    "project_id": "mindzspark-76b55",
+    "storage_bucket": "mindzspark-76b55.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:792257449245:android:7832f6c02bb9b5536865f4",
+        "android_client_info": {
+          "package_name": "com.umang.MindzSpark"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCn0-qvXZLCiU6YWy1s38280NjGKaQ8CVM"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
