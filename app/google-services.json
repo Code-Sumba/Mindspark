@@ -12,7 +12,20 @@
           "package_name": "com.umang.MindzSpark"
         }
       },
-      "oauth_client": [],
+      "oauth_client": [
+        {
+          "client_id": "792257449245-7fos1fmbf36oetbllqn3ufbpsc2dpbku.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.umang.MindzSpark",
+            "certificate_hash": "b5f73ea36f7e76aa91709cab7ad87e39b5f3e263"
+          }
+        },
+        {
+          "client_id": "792257449245-f3a0k5lb9vqgp19pcucpadmgma1legtm.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
       "api_key": [
         {
           "current_key": "AIzaSyCn0-qvXZLCiU6YWy1s38280NjGKaQ8CVM"
@@ -20,7 +33,12 @@
       ],
       "services": {
         "appinvite_service": {
-          "other_platform_oauth_client": []
+          "other_platform_oauth_client": [
+            {
+              "client_id": "792257449245-f3a0k5lb9vqgp19pcucpadmgma1legtm.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
         }
       }
     }

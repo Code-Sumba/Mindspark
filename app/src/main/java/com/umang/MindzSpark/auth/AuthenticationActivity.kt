@@ -173,36 +173,36 @@ class AuthenticationActivity : AppCompatActivity() {
 
         }
 
-      newUserTextSign.setOnClickListener {
-          val welcomeText: TextView = findViewById(R.id.welcomeText)
-          val btnSignUp: Button = findViewById(R.id.btnName)
-          val userText: TextView = findViewById(R.id.newUserText)
-          val userTextSign:TextView=findViewById(R.id.newUserTextSign)
-          val oAuthText: TextView = findViewById(R.id.singInText)
+        newUserTextSign.setOnClickListener {
+            val welcomeText: TextView = findViewById(R.id.welcomeText)
+            val btnSignUp: Button = findViewById(R.id.btnName)
+            val userText: TextView = findViewById(R.id.newUserText)
+            val userTextSign:TextView=findViewById(R.id.newUserTextSign)
+            val oAuthText: TextView = findViewById(R.id.singInText)
 
-          // Checking the Text
-          if(newUserText.text.equals("Don't have an Account?")) {
+            // Checking the Text
+            if(newUserText.text.equals("Don't have an Account?")) {
 
-              forgotPassword.visibility = View.GONE
-              // We need to change it to Sign in here since new user Text is Sign Up
-              welcomeText.text = "Create a new\nAccount"
-              btnSignUp.text = "\t\t\tSign up\t\t\t"
-              userText.text = "Already have an Account!"
-              userTextSign.text = "Sign in"
-              oAuthText.text = "Or Sign up with"
+                forgotPassword.visibility = View.GONE
+                // We need to change it to Sign in here since new user Text is Sign Up
+                welcomeText.text = "Create a new\nAccount"
+                btnSignUp.text = "\t\t\tSign up\t\t\t"
+                userText.text = "Already have an Account!"
+                userTextSign.text = "Sign in"
+                oAuthText.text = "Or Sign up with"
 
-          } else {
+            } else {
 
-              forgotPassword.visibility = View.VISIBLE
-              // We need to change it to Sign up here since new user Text is Sign in
-              welcomeText.text = "Here to Get\nWelcome"
-              btnSignUp.text = "\t\t\tSign in\t\t\t"
-              userTextSign.text = "Sign up"
-              userText.text = "Don't have an Account?"
-              oAuthText.text = "Or Sign in with"
+                forgotPassword.visibility = View.VISIBLE
+                // We need to change it to Sign up here since new user Text is Sign in
+                welcomeText.text = "Here to Get\nWelcome"
+                btnSignUp.text = "\t\t\tSign in\t\t\t"
+                userTextSign.text = "Sign up"
+                userText.text = "Don't have an Account?"
+                oAuthText.text = "Or Sign in with"
 
-          }
-      }
+            }
+        }
         // When user clicks on Button, check the Text
         btnName.setOnClickListener {
             // Check Validation as written in StudentDetailsActivity.kt file from line 38
@@ -544,9 +544,9 @@ class AuthenticationActivity : AppCompatActivity() {
         return !TextUtils.isEmpty(target) && Patterns.EMAIL_ADDRESS.matcher(target).matches()
     }
 
-        private fun isNullOrEmpty(str: Editable?): Boolean {
-            if (str != null && !str.trim().isEmpty())
-                return false
-            return true
-        }
+    private fun isNullOrEmpty(str: Editable?): Boolean {
+        if (str != null && !str.trim().isEmpty())
+            return false
+        return true
+    }
 }

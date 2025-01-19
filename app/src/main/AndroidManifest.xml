@@ -58,7 +58,7 @@
             android:screenOrientation="portrait"
             android:windowSoftInputMode="stateAlwaysHidden|adjustPan" />
 
-        <activity android:name="com.umang.MindzSpark.onboarding.SplashScreenActivity">
+        <activity android:name="com.umang.MindzSpark.onboarding.SplashScreenActivity" android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 

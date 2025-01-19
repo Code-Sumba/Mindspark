@@ -2,24 +2,26 @@ package com.umang.MindzSpark.adapters
 
 import android.content.Context
 import android.view.LayoutInflater
-import android.view.View
 import android.view.ViewGroup
-import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
-import com.umang.MindzSpark.R
+import com.umang.MindzSpark.databinding.ClassmateViewCardBinding
 import com.umang.MindzSpark.modals.StudentData
-import kotlinx.android.synthetic.main.activity_student_profile.*
-import kotlinx.android.synthetic.main.classmate_view_card.view.*
 
-class ClassMatesAdapter(val context: Context, private val classMatesList: ArrayList<StudentData>):
-    RecyclerView.Adapter<ClassMatesAdapter.ViewHolder>() {
+class ClassMatesAdapter(
+    private val context: Context,
+    private val classMatesList: ArrayList<StudentData>
+) : RecyclerView.Adapter<ClassMatesAdapter.ViewHolder>() {
 
-    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ClassMatesAdapter.ViewHolder {
-        val v = LayoutInflater.from(parent.context).inflate(R.layout.classmate_view_card, parent, false)
-        return ClassMatesAdapter.ViewHolder(v)
+    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
+        val binding = ClassmateViewCardBinding.inflate(
+            LayoutInflater.from(parent.context),
+            parent,
+            false
+        )
+        return ViewHolder(binding)
     }
 
-    override fun onBindViewHolder(holder: ClassMatesAdapter.ViewHolder, position: Int) {
+    override fun onBindViewHolder(holder: ViewHolder, position: Int) {
         holder.bindItems(classMatesList[position])
     }
 
@@ -27,31 +29,25 @@ class ClassMatesAdapter(val context: Context, private val classMatesList: ArrayL
         return classMatesList.size
     }
 
-    class ViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
-
-        val txtStudentName = itemView.findViewById(R.id.studentName) as TextView
-        val txtMailId  = itemView.findViewById(R.id.mailID) as TextView
-
-        val profileText = itemView.profileTextLayout.findViewById(R.id.profileText) as TextView
+    class ViewHolder(private val binding: ClassmateViewCardBinding) : RecyclerView.ViewHolder(binding.root) {
 
         fun bindItems(classMates: StudentData) {
+            // Set student name and email
+            binding.studentName.text = classMates.studentName
+            binding.mailID.text = classMates.emailID
 
-            txtStudentName.text = classMates.studentName
-            txtMailId.text = classMates.emailID
-
+            // Generate profile text based on the student name
             val studentName = classMates.studentName
-            val count = classMates.studentName?.split(" ")!!.toTypedArray()
+            val nameParts = studentName?.split(" ") ?: listOf()
 
-            if(count.size == 1) {
-                profileText.text = studentName!![0].toString()
-            } else {
-                val index = studentName?.lastIndexOf(' ')
-                val firstName = index?.let { it1 -> studentName?.substring(0, it1) }
-                val lastName = index?.plus(1)?.let { it1 -> studentName?.substring(it1) }
-                profileText.text = firstName?.toString()!![0] + lastName!![0]?.toString()
+            binding.profileText.text = when (nameParts.size) {
+                1 -> studentName?.firstOrNull()?.toString()
+                else -> {
+                    val firstNameInitial = nameParts.firstOrNull()?.firstOrNull()?.toString()
+                    val lastNameInitial = nameParts.lastOrNull()?.firstOrNull()?.toString()
+                    "$firstNameInitial$lastNameInitial"
+                }
             }
         }
-
     }
-
 }
