@@ -53,5 +53,10 @@ object AppPreferences {
             it.putString(STUDENT_EMAIL_ID.first, value)
         }
 
-
+    // New method added: clearPreferences()
+    fun clearPreferences() {
+        val editor = preferences.edit()
+        editor.clear()
+        editor.apply()
+    }
 }

@@ -12,83 +12,89 @@ import com.google.firebase.database.FirebaseDatabase
 import com.google.firebase.database.ValueEventListener
 import com.umang.MindzSpark.R
 import com.umang.MindzSpark.adapters.MissedNotificationsAdapter
+import com.umang.MindzSpark.databinding.ActivityViewNotificationsBinding
 import com.umang.MindzSpark.modals.NotificationData
 import com.umang.MindzSpark.utils.AppPreferences
-import kotlinx.android.synthetic.main.activity_view_notifications.*
 
 class ViewNotificationsActivity : AppCompatActivity() {
 
-    lateinit var notificationsList: ArrayList<NotificationData>
-    lateinit var layoutManager: LinearLayoutManager
-    lateinit var notificationAdapter: MissedNotificationsAdapter
+    private lateinit var binding: ActivityViewNotificationsBinding
+    private lateinit var notificationsList: ArrayList<NotificationData>
+    private lateinit var layoutManager: LinearLayoutManager
+    private lateinit var notificationAdapter: MissedNotificationsAdapter
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_view_notifications)
+        binding = ActivityViewNotificationsBinding.inflate(layoutInflater)
+        setContentView(binding.root)
 
-        notificationsList = ArrayList<NotificationData>()
+        notificationsList = ArrayList()
 
-        layoutManager = LinearLayoutManager(this)
-        layoutManager.orientation = LinearLayoutManager.VERTICAL
-        layoutManager.stackFromEnd = true
-        layoutManager.reverseLayout = true
+        layoutManager = LinearLayoutManager(this).apply {
+            orientation = LinearLayoutManager.VERTICAL
+            stackFromEnd = true
+            reverseLayout = true
+        }
 
-        animationView.visibility = View.VISIBLE
-        recyclerLayout.visibility = View.GONE
+        binding.animationView.visibility = View.VISIBLE
+        binding.recyclerLayout.visibility = View.GONE
 
-        closeButton.setOnClickListener {
-            val intent = Intent(this, HomeActivity::class.java)
-            intent.flags = Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_SINGLE_TOP
+        binding.closeButton.setOnClickListener {
+            val intent = Intent(this, HomeActivity::class.java).apply {
+                flags = Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_SINGLE_TOP
+            }
             startActivity(intent)
         }
 
-
         retrieveNotificationData()
-
     }
 
     private fun retrieveNotificationData() {
+        val myRef = FirebaseDatabase.getInstance()
+            .getReference(AppPreferences.studentID)
+            .child("notifications_data")
 
-        val myRef = FirebaseDatabase.getInstance().getReference(AppPreferences.studentID).child("notifications_data")
         myRef.keepSynced(true)
-        val databaseListener = object : ValueEventListener{
+
+        val databaseListener = object : ValueEventListener {
             override fun onDataChange(snapshot: DataSnapshot) {
-                if(snapshot.exists()) {
+                if (snapshot.exists()) {
+                    binding.animationView.visibility = View.GONE
+                    binding.recyclerLayout.visibility = View.VISIBLE
 
-                    animationView.visibility = View.GONE
-                    recyclerLayout.visibility = View.VISIBLE
-
+                    notificationsList.clear()
                     for (ds in snapshot.children) {
                         val notificationData = ds.getValue(NotificationData::class.java)
-                        if(notificationData!=null) {
-                            notificationsList.add(notificationData)
-                        }
+                        notificationData?.let { notificationsList.add(it) }
                     }
 
-                    notificationAdapter = MissedNotificationsAdapter(this@ViewNotificationsActivity, notificationsList)
-                    notificationRecycler.layoutManager = layoutManager
-                    notificationRecycler.setHasFixedSize(true)
-                    notificationRecycler.adapter = notificationAdapter
-
+                    notificationAdapter = MissedNotificationsAdapter(
+                        this@ViewNotificationsActivity,
+                        notificationsList
+                    )
+                    binding.notificationRecycler.apply {
+                        layoutManager = this@ViewNotificationsActivity.layoutManager
+                        setHasFixedSize(true)
+                        adapter = notificationAdapter
+                    }
                 } else {
-                    animationView.visibility = View.GONE
-                    recyclerLayout.visibility = View.GONE
-
-
-                    noDataAnimation.visibility = View.VISIBLE
-                   // Toast.makeText(this@ViewNotificationsActivity,"No Data Found",Toast.LENGTH_LONG).show()
+                    binding.animationView.visibility = View.GONE
+                    binding.recyclerLayout.visibility = View.GONE
+                    binding.noDataAnimation.visibility = View.VISIBLE
                 }
             }
 
             override fun onCancelled(error: DatabaseError) {
-                animationView.visibility = View.GONE
-                recyclerLayout.visibility = View.VISIBLE
-
-                Toast.makeText(this@ViewNotificationsActivity,""+error.message.toString(),Toast.LENGTH_LONG).show()
-
+                binding.animationView.visibility = View.GONE
+                binding.recyclerLayout.visibility = View.VISIBLE
+                Toast.makeText(
+                    this@ViewNotificationsActivity,
+                    error.message,
+                    Toast.LENGTH_LONG
+                ).show()
             }
         }
 
         myRef.addValueEventListener(databaseListener)
-
     }
 }

@@ -6,6 +6,9 @@ plugins {
 }
 
 android {
+    viewBinding {
+        enabled = true
+    }
     namespace = "com.umang.MindzSpark"
     compileSdk = 35
 

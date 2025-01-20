@@ -6,8 +6,6 @@ import android.os.Bundle
 import android.text.Editable
 import android.text.TextWatcher
 import android.view.View
-import android.view.View.GONE
-import android.view.View.VISIBLE
 import android.widget.Button
 import android.widget.TextView
 import android.widget.Toast
@@ -28,75 +26,62 @@ import com.umang.MindzSpark.adapters.ClassNotesAdapter
 import com.umang.MindzSpark.auth.AuthenticationActivity
 import com.umang.MindzSpark.modals.FileUploadData
 import com.umang.MindzSpark.utils.AppPreferences
-import kotlinx.android.synthetic.main.activity_about.*
-import kotlinx.android.synthetic.main.activity_class_notes.*
-import kotlinx.android.synthetic.main.activity_class_notes.adView
-import kotlinx.android.synthetic.main.activity_class_notes.closeButton
-import kotlinx.android.synthetic.main.activity_class_notes.divider
-import kotlinx.android.synthetic.main.activity_class_notes.searchEditText
-
+import com.umang.MindzSpark.databinding.ActivityClassNotesBinding
 
 class ClassNotesActivity : AppCompatActivity() {
 
+    private lateinit var binding: ActivityClassNotesBinding
     private lateinit var linearLayoutManager: LinearLayoutManager
     private lateinit var classNotesList: ArrayList<FileUploadData>
     private lateinit var classNotesAdapter: ClassNotesAdapter
-
-    lateinit var mGoogleSignInClient: GoogleSignInClient
-
-
+    private lateinit var mGoogleSignInClient: GoogleSignInClient
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_class_notes)
+        binding = ActivityClassNotesBinding.inflate(layoutInflater)
+        setContentView(binding.root)
 
+        // Google Sign-In configuration
         val gso = GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
             .requestIdToken(getString(R.string.default_web_client_id))
             .requestEmail()
             .build()
 
-        // Build a GoogleSignInClient with the options specified by gso.
         mGoogleSignInClient = GoogleSignIn.getClient(this, gso)
 
         AppPreferences.init(this)
 
-        // Google AdMob
+        // Initialize Google AdMob
         MobileAds.initialize(this) {}
         val adRequest = AdRequest.Builder().build()
-        adView.loadAd(adRequest)
+        binding.adView.loadAd(adRequest)
 
-
-        closeButton.setOnClickListener {
-            val intent = Intent(this, HomeActivity::class.java)
-            intent.flags = Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_SINGLE_TOP
-            startActivity(intent)
-            
+        binding.closeButton.setOnClickListener {
+            startActivity(Intent(this, HomeActivity::class.java).apply {
+                flags = Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_SINGLE_TOP
+            })
         }
 
-        classNotesList = ArrayList<FileUploadData>()
+        classNotesList = ArrayList()
 
-        // ClassNotesAdapter Layout Manager
-        linearLayoutManager = LinearLayoutManager(this)
-        linearLayoutManager.orientation = LinearLayoutManager.VERTICAL
-        linearLayoutManager.reverseLayout = true
+        // Set up the RecyclerView LayoutManager
+        linearLayoutManager = LinearLayoutManager(this).apply {
+            orientation = LinearLayoutManager.VERTICAL
+            reverseLayout = true
+        }
 
-
-        sortbyDate.setOnClickListener {
+        binding.sortbyDate.setOnClickListener {
             Toast.makeText(this, "Already Sorted by Date!", Toast.LENGTH_LONG).show()
         }
 
-        val  intent = intent
-        if(intent.getStringExtra("navigatedFrom")!=null) {
-
-            sortbyDate.visibility = GONE
-            searchFiles.visibility = GONE
-            divider.visibility = GONE
-
-            // Showing Search Edit Text
-            searchEditText.visibility = VISIBLE
+        intent.getStringExtra("navigatedFrom")?.let {
+            binding.sortbyDate.visibility = View.GONE
+            binding.searchFiles.visibility = View.GONE
+            binding.divider.visibility = View.GONE
+            binding.searchEditText.visibility = View.VISIBLE
         }
 
-        searchEditText.addTextChangedListener(object : TextWatcher {
+        binding.searchEditText.addTextChangedListener(object : TextWatcher {
             override fun beforeTextChanged(s: CharSequence, start: Int, count: Int, after: Int) {}
             override fun onTextChanged(s: CharSequence, start: Int, before: Int, count: Int) {}
             override fun afterTextChanged(s: Editable) {
@@ -104,287 +89,187 @@ class ClassNotesActivity : AppCompatActivity() {
             }
         })
 
-        animationView.visibility = VISIBLE
-        prefsLayout.visibility = GONE
-        recyclerLayout.visibility = GONE
+        binding.animationView.visibility = View.VISIBLE
+        binding.prefsLayout.visibility = View.GONE
+        binding.recyclerLayout.visibility = View.GONE
 
-
-/*
-        filterSubjects.setOnClickListener {
-            startActivity(Intent(this, FilterSubjectsActivity::class.java))
-        }
-*/
-        searchFiles.setOnClickListener {
-            sortbyDate.visibility = GONE
-            searchFiles.visibility = GONE
-            divider.visibility = GONE
-
-            // Showing Search Edit Text
-            searchEditText.visibility = VISIBLE
+        binding.searchFiles.setOnClickListener {
+            binding.sortbyDate.visibility = View.GONE
+            binding.searchFiles.visibility = View.GONE
+            binding.divider.visibility = View.GONE
+            binding.searchEditText.visibility = View.VISIBLE
         }
 
-        // Retrieving Data from Firebase Realtime Database
-        retriveClassNotesData()
+        // Retrieve data from Firebase
+        retrieveClassNotesData()
 
-        classNotesFAB.setOnClickListener {
-            val intent = Intent(this, UploadFilesActivity::class.java)
-            intent.flags = Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_SINGLE_TOP
-            startActivity(intent)
-            
+        binding.classNotesFAB.setOnClickListener {
+            startActivity(Intent(this, UploadFilesActivity::class.java).apply {
+                flags = Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_SINGLE_TOP
+            })
         }
 
-
-        classNotesBottomNav.setOnClickListener {
-            val dialog= BottomSheetDialog(this,R.style.BottomSheetDialog)
-            val view=layoutInflater.inflate(R.layout.bottom_home, null)
-
-            view.findViewById<TextView>(R.id.homePage).setOnClickListener {
-                view.findViewById<TextView>(R.id.homePage).setBackgroundResource(R.drawable.bottom_sheet_dialog_button)
-                view.findViewById<TextView>(R.id.homePage).setTextColor(resources.getColor(R.color.colorPrimary))
-
-                val intent = Intent(this, HomeActivity::class.java)
-                intent.flags = Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_SINGLE_TOP
-                startActivity(intent)
-                
-                view.findViewById<TextView>(R.id.classNotes).setBackgroundResource(0)
-                view.findViewById<TextView>(R.id.remainders).setBackgroundResource(0)
-                view.findViewById<TextView>(R.id.profile).setBackgroundResource(0)
-                view.findViewById<TextView>(R.id.collegeMates).setBackgroundResource(0)
-                view.findViewById<TextView>(R.id.rateUs).setBackgroundResource(0)
-                view.findViewById<TextView>(R.id.logOut).setBackgroundResource(0)
-
-                //dialog.dismiss()
-
-            }
-
-            view.findViewById<TextView>(R.id.classNotes).setOnClickListener {
-                view.findViewById<TextView>(R.id.classNotes).setBackgroundResource(R.drawable.bottom_sheet_dialog_button)
-                view.findViewById<TextView>(R.id.classNotes).setTextColor(resources.getColor(R.color.colorPrimary))
-
-                val intent = Intent(this, ClassNotesActivity::class.java)
-                intent.flags = Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_SINGLE_TOP
-                startActivity(intent)
-                
-                view.findViewById<TextView>(R.id.homePage).setBackgroundResource(0)
-                view.findViewById<TextView>(R.id.remainders).setBackgroundResource(0)
-                view.findViewById<TextView>(R.id.profile).setBackgroundResource(0)
-                view.findViewById<TextView>(R.id.collegeMates).setBackgroundResource(0)
-                view.findViewById<TextView>(R.id.rateUs).setBackgroundResource(0)
-                view.findViewById<TextView>(R.id.logOut).setBackgroundResource(0)
-
-                //dialog.dismiss()
-
-            }
-            view.findViewById<TextView>(R.id.remainders).setOnClickListener {
-                view.findViewById<TextView>(R.id.remainders).setBackgroundResource(R.drawable.bottom_sheet_dialog_button)
-                view.findViewById<TextView>(R.id.remainders).setTextColor(resources.getColor(R.color.colorPrimary))
-
-                val intent = Intent(this, ReminderActivity::class.java)
-                intent.flags = Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_SINGLE_TOP
-                startActivity(intent)
-                
-                view.findViewById<TextView>(R.id.homePage).setBackgroundResource(0)
-                view.findViewById<TextView>(R.id.classNotes).setBackgroundResource(0)
-                view.findViewById<TextView>(R.id.profile).setBackgroundResource(0)
-                view.findViewById<TextView>(R.id.collegeMates).setBackgroundResource(0)
-                view.findViewById<TextView>(R.id.rateUs).setBackgroundResource(0)
-                view.findViewById<TextView>(R.id.logOut).setBackgroundResource(0)
-
-                // dialog.dismiss()
-            }
-            view.findViewById<TextView>(R.id.profile).setOnClickListener {
-                view.findViewById<TextView>(R.id.profile).setBackgroundResource(R.drawable.bottom_sheet_dialog_button)
-                view.findViewById<TextView>(R.id.profile).setTextColor(resources.getColor(R.color.colorPrimary))
-
-                val intent = Intent(this, StudentProfileActivity::class.java)
-                intent.flags = Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_SINGLE_TOP
-                startActivity(intent)
-                
-                view.findViewById<TextView>(R.id.homePage).setBackgroundResource(0)
-                view.findViewById<TextView>(R.id.classNotes).setBackgroundResource(0)
-                view.findViewById<TextView>(R.id.remainders).setBackgroundResource(0)
-                view.findViewById<TextView>(R.id.collegeMates).setBackgroundResource(0)
-                view.findViewById<TextView>(R.id.rateUs).setBackgroundResource(0)
-                view.findViewById<TextView>(R.id.logOut).setBackgroundResource(0)
-
-                //  dialog.dismiss()
-
-
-            }
-            view.findViewById<TextView>(R.id.rateUs).setOnClickListener {
-                view.findViewById<TextView>(R.id.rateUs).setBackgroundResource(R.drawable.bottom_sheet_dialog_button)
-                view.findViewById<TextView>(R.id.rateUs).setTextColor(resources.getColor(R.color.colorPrimary))
-                //startActivity(Intent(this, StudentDetailsActivity::class.java))
-
-                val intent = Intent(this, AboutActivity::class.java)
-                intent.flags = Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_SINGLE_TOP
-                startActivity(intent)
-                
-                view.findViewById<TextView>(R.id.homePage).setBackgroundResource(0)
-                view.findViewById<TextView>(R.id.classNotes).setBackgroundResource(0)
-                view.findViewById<TextView>(R.id.profile).setBackgroundResource(0)
-                view.findViewById<TextView>(R.id.collegeMates).setBackgroundResource(0)
-                view.findViewById<TextView>(R.id.remainders).setBackgroundResource(0)
-                view.findViewById<TextView>(R.id.logOut).setBackgroundResource(0)
-
-                //  dialog.dismiss()
-            }
-            view.findViewById<TextView>(R.id.logOut).setOnClickListener {
-
-                view.findViewById<TextView>(R.id.logOut).setBackgroundResource(R.drawable.bottom_sheet_dialog_button)
-                view.findViewById<TextView>(R.id.logOut).setTextColor(resources.getColor(R.color.colorPrimary))
-
-                val logoutDialog = Dialog(this)
-                logoutDialog.setContentView(R.layout.logout_dialog)
-                logoutDialog.setCancelable(false)
-                logoutDialog.setCanceledOnTouchOutside(false)
-                logoutDialog.window!!.setBackgroundDrawableResource(android.R.color.transparent)
-
-                logoutDialog.findViewById<Button>(R.id.btnLogout).setOnClickListener {
-                    val account = GoogleSignIn.getLastSignedInAccount(this)
-                    if (account != null) {
-                        //Some one is already logged in
-                        // Google sign out
-                        // Google sign out
-                        mGoogleSignInClient.signOut().addOnCompleteListener(this) {
-                            // Logout the user from session
-                            AppPreferences.isLogin = false
-                            AppPreferences.studentID = ""
-                            AppPreferences.studentName = ""
-                            val intent = Intent(this, AuthenticationActivity::class.java)
-                            intent.flags = Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_SINGLE_TOP
-                            startActivity(intent)
-                            finish()
-                                                    }
-                    } else {
-                        // Logout the user from session
-                        AppPreferences.isLogin = false
-                        AppPreferences.studentID = ""
-                        AppPreferences.studentName = ""
-                        val intent = Intent(this, AuthenticationActivity::class.java)
-                        intent.flags = Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_SINGLE_TOP
-                        startActivity(intent)
-                        finish()
-                                            }
-                }
-
-                logoutDialog.findViewById<Button>(R.id.btnCancel).setOnClickListener {
-                    logoutDialog.dismiss()
-                }
-
-                logoutDialog.show()
-                view.findViewById<TextView>(R.id.homePage).setBackgroundResource(0)
-                view.findViewById<TextView>(R.id.classNotes).setBackgroundResource(0)
-                view.findViewById<TextView>(R.id.profile).setBackgroundResource(0)
-                view.findViewById<TextView>(R.id.collegeMates).setBackgroundResource(0)
-                view.findViewById<TextView>(R.id.rateUs).setBackgroundResource(0)
-                view.findViewById<TextView>(R.id.remainders).setBackgroundResource(0)
-                //  dialog.dismiss()
-
-            }
-            view.findViewById<TextView>(R.id.collegeMates).setOnClickListener {
-                view.findViewById<TextView>(R.id.collegeMates).setBackgroundResource(R.drawable.bottom_sheet_dialog_button)
-                view.findViewById<TextView>(R.id.collegeMates).setTextColor(resources.getColor(R.color.colorPrimary))
-                val intent = Intent(this, ClassMatesActivity::class.java)
-                intent.flags = Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_SINGLE_TOP
-                startActivity(intent)
-                
-                view.findViewById<TextView>(R.id.classNotes).setBackgroundResource(0)
-                view.findViewById<TextView>(R.id.profile).setBackgroundResource(0)
-                view.findViewById<TextView>(R.id.remainders).setBackgroundResource(0)
-                view.findViewById<TextView>(R.id.rateUs).setBackgroundResource(0)
-                view.findViewById<TextView>(R.id.logOut).setBackgroundResource(0)
-
-                //  dialog.dismiss()
-
-            }
-
-
-            dialog.setContentView(view)
-            //dialog.window!!.setBackgroundDrawableResource(android.R.color.transparent)
-            dialog.show()
-
-
-
-        }
-
+        setupBottomNavigation()
     }
 
-    private fun retriveClassNotesData() {
+    private fun retrieveClassNotesData() {
+        val myRef = FirebaseDatabase.getInstance().reference
+            .child(AppPreferences.studentID).child("files_data")
 
-        val myRef = FirebaseDatabase.getInstance().reference.child(AppPreferences.studentID).child("files_data")
         myRef.keepSynced(true)
 
-        val classNotesListener = object :ValueEventListener{
+        myRef.addValueEventListener(object : ValueEventListener {
             override fun onDataChange(dataSnapshot: DataSnapshot) {
                 classNotesList.clear()
 
-                if(dataSnapshot.exists()) {
-
-                    animationView.visibility = GONE
-                    prefsLayout.visibility = VISIBLE
-                    recyclerLayout.visibility = VISIBLE
-
-                    for (ds in dataSnapshot.children) {
-
-                        val classNotesData = ds.getValue(FileUploadData::class.java)
-
-                        if (classNotesData != null) {
-                            classNotesList.add(classNotesData)
-
-                            classNotesAdapter = ClassNotesAdapter(this@ClassNotesActivity, classNotesList, AppPreferences.studentName.toString(), AppPreferences.studentID.toString())
-
-                            classNotesRecycler.setHasFixedSize(true)
-                            linearLayoutManager.reverseLayout = true
-                            linearLayoutManager.stackFromEnd = true
-                            linearLayoutManager.orientation = LinearLayoutManager.VERTICAL
-
-                            classNotesRecycler.layoutManager = linearLayoutManager
-                            classNotesRecycler.adapter = classNotesAdapter
-                            classNotesAdapter.notifyDataSetChanged()
-
-                        }
-
+                if (dataSnapshot.exists()) {
+                    binding.apply {
+                        animationView.visibility = View.GONE
+                        prefsLayout.visibility = View.VISIBLE
+                        recyclerLayout.visibility = View.VISIBLE
                     }
 
+                    for (ds in dataSnapshot.children) {
+                        val classNotesData = ds.getValue(FileUploadData::class.java)
+                        if (classNotesData != null) {
+                            classNotesList.add(classNotesData)
+                        }
+                    }
 
-
-
+                    if (!::classNotesAdapter.isInitialized) {
+                        classNotesAdapter = ClassNotesAdapter(
+                            this@ClassNotesActivity,
+                            classNotesList,
+                            AppPreferences.studentName ?: "",
+                            AppPreferences.studentID ?: ""
+                        )
+                        binding.classNotesRecycler.apply {
+                            setHasFixedSize(true)
+                            layoutManager = linearLayoutManager
+                            adapter = classNotesAdapter
+                        }
+                    } else {
+                        classNotesAdapter.notifyDataSetChanged()
+                    }
                 } else {
-                    animationView.visibility = GONE
-                    prefsLayout.visibility = GONE
-                    recyclerLayout.visibility = GONE
-
-                    noDataAnimation.visibility = View.VISIBLE
-                    Toast.makeText(baseContext,"No Data Found !!!",Toast.LENGTH_LONG).show()
+                    binding.apply {
+                        animationView.visibility = View.GONE
+                        prefsLayout.visibility = View.GONE
+                        recyclerLayout.visibility = View.GONE
+                        noDataAnimation.visibility = View.VISIBLE
+                    }
+                    Toast.makeText(this@ClassNotesActivity, "No Data Found !!!", Toast.LENGTH_LONG).show()
                 }
+            }
 
-
-            } override fun onCancelled(error: DatabaseError) {
-
-                animationView.visibility = GONE
-                prefsLayout.visibility = GONE
-                recyclerLayout.visibility = GONE
-
-                noDataAnimation.visibility = View.VISIBLE
+            override fun onCancelled(error: DatabaseError) {
+                binding.apply {
+                    animationView.visibility = View.GONE
+                    prefsLayout.visibility = View.GONE
+                    recyclerLayout.visibility = View.GONE
+                    noDataAnimation.visibility = View.VISIBLE
+                }
                 Toast.makeText(this@ClassNotesActivity, error.message, Toast.LENGTH_LONG).show()
             }
-        }
-        myRef.addValueEventListener(classNotesListener)
-
-
+        })
     }
 
     private fun filter(text: String) {
-        val filteredlist: ArrayList<FileUploadData> = ArrayList()
-        for (item in classNotesList) {
-            if (item.fileName!!.toLowerCase().contains(text.toLowerCase()) || item.subjectName?.toLowerCase()!!.contains(text.toLowerCase()) || item.unitNumber?.toLowerCase()!!.contains(text.toLowerCase()) || item.studentName?.toLowerCase()!!.contains(text.toLowerCase()) || item.fileType?.toLowerCase()!!.contains(text.toLowerCase())) {
-                filteredlist.add(item)
-            }
+        val filteredList = classNotesList.filter {
+            it.fileName?.contains(text, ignoreCase = true) == true ||
+                    it.subjectName?.contains(text, ignoreCase = true) == true ||
+                    it.unitNumber?.contains(text, ignoreCase = true) == true ||
+                    it.studentName?.contains(text, ignoreCase = true) == true ||
+                    it.fileType?.contains(text, ignoreCase = true) == true
         }
-        classNotesAdapter.filterList(filteredlist)
+        classNotesAdapter.filterList(ArrayList(filteredList))
     }
 
+    private fun setupBottomNavigation() {
+        binding.classNotesBottomNav.setOnClickListener {
+            val dialog = BottomSheetDialog(this, R.style.BottomSheetDialog)
+            val view = layoutInflater.inflate(R.layout.bottom_home, null)
 
+            view.findViewById<TextView>(R.id.homePage).setOnClickListener {
+                startActivity(Intent(this, HomeActivity::class.java).apply {
+                    flags = Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_SINGLE_TOP
+                })
+            }
 
+            view.findViewById<TextView>(R.id.classNotes).setOnClickListener {
+                startActivity(Intent(this, ClassNotesActivity::class.java).apply {
+                    flags = Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_SINGLE_TOP
+                })
+            }
+
+            view.findViewById<TextView>(R.id.remainders).setOnClickListener {
+                startActivity(Intent(this, ReminderActivity::class.java).apply {
+                    flags = Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_SINGLE_TOP
+                })
+            }
+
+            view.findViewById<TextView>(R.id.profile).setOnClickListener {
+                startActivity(Intent(this, StudentProfileActivity::class.java).apply {
+                    flags = Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_SINGLE_TOP
+                })
+            }
+
+            view.findViewById<TextView>(R.id.rateUs).setOnClickListener {
+                startActivity(Intent(this, AboutActivity::class.java).apply {
+                    flags = Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_SINGLE_TOP
+                })
+            }
+
+            view.findViewById<TextView>(R.id.logOut).setOnClickListener {
+                showLogoutDialog()
+            }
+
+            view.findViewById<TextView>(R.id.collegeMates).setOnClickListener {
+                startActivity(Intent(this, ClassMatesActivity::class.java).apply {
+                    flags = Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_SINGLE_TOP
+                })
+            }
+
+            dialog.setContentView(view)
+            dialog.show()
+        }
+    }
+
+    private fun showLogoutDialog() {
+        val logoutDialog = Dialog(this).apply {
+            setContentView(R.layout.logout_dialog)
+            setCancelable(false)
+            setCanceledOnTouchOutside(false)
+            window?.setBackgroundDrawableResource(android.R.color.transparent)
+        }
+
+        logoutDialog.findViewById<Button>(R.id.btnLogout).setOnClickListener {
+            val account = GoogleSignIn.getLastSignedInAccount(this)
+            if (account != null) {
+                mGoogleSignInClient.signOut().addOnCompleteListener(this) {
+                    AppPreferences.isLogin = false
+                    AppPreferences.studentID = ""
+                    AppPreferences.studentName = ""
+                    startActivity(Intent(this, AuthenticationActivity::class.java).apply {
+                        flags = Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_SINGLE_TOP
+                    })
+                    finish()
+                }
+            } else {
+                AppPreferences.isLogin = false
+                AppPreferences.studentID = ""
+                AppPreferences.studentName = ""
+                startActivity(Intent(this, AuthenticationActivity::class.java).apply {
+                    flags = Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_SINGLE_TOP
+                })
+                finish()
+            }
+        }
+
+        logoutDialog.findViewById<Button>(R.id.btnCancel).setOnClickListener {
+            logoutDialog.dismiss()
+        }
+
+        logoutDialog.show()
+    }
 }
