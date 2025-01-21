@@ -1,5 +1,5 @@
 package com.umang.MindzSpark.general
-
+import android.view.View
 import android.app.Dialog
 import android.content.Intent
 import android.os.Bundle
@@ -14,41 +14,34 @@ import com.google.android.gms.auth.api.signin.GoogleSignInClient
 import com.google.android.gms.auth.api.signin.GoogleSignInOptions
 import com.google.android.material.bottomsheet.BottomSheetDialog
 import com.google.firebase.database.FirebaseDatabase
+import com.umang.MindzSpark.databinding.ActivityAboutBinding
 import com.umang.MindzSpark.R
 import com.umang.MindzSpark.auth.AuthenticationActivity
 import com.umang.MindzSpark.modals.FeedbackData
 import com.umang.MindzSpark.utils.AppPreferences
-import kotlinx.android.synthetic.main.activity_about.*
-import kotlinx.android.synthetic.main.activity_about.adView
-import kotlinx.android.synthetic.main.activity_about.bottomnav
-import kotlinx.android.synthetic.main.activity_about.closeButton
-import kotlinx.android.synthetic.main.activity_about.uploadFilesButton
-import kotlinx.android.synthetic.main.activity_class_mates.*
-import kotlinx.android.synthetic.main.activity_home.*
-
 
 class AboutActivity : AppCompatActivity() {
-    lateinit var mGoogleSignInClient: GoogleSignInClient
+
+    private lateinit var binding: ActivityAboutBinding
+    private lateinit var mGoogleSignInClient: GoogleSignInClient
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_about)
+
+        // Initialize ViewBinding
+        binding = ActivityAboutBinding.inflate(layoutInflater)
+        setContentView(binding.root)
 
         AppPreferences.init(this)
 
-        // Google AdMob
+        // Initialize Google AdMob
         MobileAds.initialize(this) {}
         val adRequest = AdRequest.Builder().build()
-        adView.loadAd(adRequest)
+        binding.adView.loadAd(adRequest)
 
-
-        /* Glide.with(this).load(R.drawable.saikiran).into(imageView)
-         Glide.with(this).load(R.drawable.prathyushanew).into(imageView2)*/
-
-        closeButton.setOnClickListener{
-            val intent = Intent(this,HomeActivity::class.java)
-            intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK)
-            intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP)
+        binding.closeButton.setOnClickListener {
+            val intent = Intent(this, HomeActivity::class.java)
+            intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK or Intent.FLAG_ACTIVITY_CLEAR_TOP)
             startActivity(intent)
         }
 
@@ -57,21 +50,17 @@ class AboutActivity : AppCompatActivity() {
             .requestEmail()
             .build()
 
-
-        // Build a GoogleSignInClient with the options specified by gso.
         mGoogleSignInClient = GoogleSignIn.getClient(this, gso)
 
-        uploadFilesButton.setOnClickListener {
+        binding.uploadFilesButton.setOnClickListener {
             val intent = Intent(this, UploadFilesActivity::class.java)
             intent.flags = Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_SINGLE_TOP
             startActivity(intent)
-
         }
 
-
-        bottomnav.setOnClickListener {
-            val dialog= BottomSheetDialog(this,R.style.BottomSheetDialog)
-            val view=layoutInflater.inflate(R.layout.bottom_home, null)
+        binding.bottomnav.setOnClickListener {
+            val dialog = BottomSheetDialog(this, R.style.BottomSheetDialog)
+            val view = layoutInflater.inflate(R.layout.bottom_home, null)
 
             view.findViewById<TextView>(R.id.homePage).setOnClickListener {
                 view.findViewById<TextView>(R.id.homePage).setBackgroundResource(R.drawable.bottom_sheet_dialog_button)
@@ -81,16 +70,7 @@ class AboutActivity : AppCompatActivity() {
                 intent.flags = Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_SINGLE_TOP
                 startActivity(intent)
 
-
-                view.findViewById<TextView>(R.id.classNotes).setBackgroundResource(0)
-                view.findViewById<TextView>(R.id.remainders).setBackgroundResource(0)
-                view.findViewById<TextView>(R.id.profile).setBackgroundResource(0)
-                view.findViewById<TextView>(R.id.collegeMates).setBackgroundResource(0)
-                view.findViewById<TextView>(R.id.rateUs).setBackgroundResource(0)
-                view.findViewById<TextView>(R.id.logOut).setBackgroundResource(0)
-
-                //dialog.dismiss()
-
+                resetBottomSheetSelection(view, R.id.homePage)
             }
 
             view.findViewById<TextView>(R.id.classNotes).setOnClickListener {
@@ -101,17 +81,9 @@ class AboutActivity : AppCompatActivity() {
                 intent.flags = Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_SINGLE_TOP
                 startActivity(intent)
 
-
-                view.findViewById<TextView>(R.id.homePage).setBackgroundResource(0)
-                view.findViewById<TextView>(R.id.remainders).setBackgroundResource(0)
-                view.findViewById<TextView>(R.id.profile).setBackgroundResource(0)
-                view.findViewById<TextView>(R.id.collegeMates).setBackgroundResource(0)
-                view.findViewById<TextView>(R.id.rateUs).setBackgroundResource(0)
-                view.findViewById<TextView>(R.id.logOut).setBackgroundResource(0)
-
-                //dialog.dismiss()
-
+                resetBottomSheetSelection(view, R.id.classNotes)
             }
+
             view.findViewById<TextView>(R.id.remainders).setOnClickListener {
                 view.findViewById<TextView>(R.id.remainders).setBackgroundResource(R.drawable.bottom_sheet_dialog_button)
                 view.findViewById<TextView>(R.id.remainders).setTextColor(resources.getColor(R.color.colorPrimary))
@@ -120,16 +92,9 @@ class AboutActivity : AppCompatActivity() {
                 intent.flags = Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_SINGLE_TOP
                 startActivity(intent)
 
-
-                view.findViewById<TextView>(R.id.homePage).setBackgroundResource(0)
-                view.findViewById<TextView>(R.id.classNotes).setBackgroundResource(0)
-                view.findViewById<TextView>(R.id.profile).setBackgroundResource(0)
-                view.findViewById<TextView>(R.id.collegeMates).setBackgroundResource(0)
-                view.findViewById<TextView>(R.id.rateUs).setBackgroundResource(0)
-                view.findViewById<TextView>(R.id.logOut).setBackgroundResource(0)
-
-                // dialog.dismiss()
+                resetBottomSheetSelection(view, R.id.remainders)
             }
+
             view.findViewById<TextView>(R.id.profile).setOnClickListener {
                 view.findViewById<TextView>(R.id.profile).setBackgroundResource(R.drawable.bottom_sheet_dialog_button)
                 view.findViewById<TextView>(R.id.profile).setTextColor(resources.getColor(R.color.colorPrimary))
@@ -138,18 +103,9 @@ class AboutActivity : AppCompatActivity() {
                 intent.flags = Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_SINGLE_TOP
                 startActivity(intent)
 
-
-                view.findViewById<TextView>(R.id.homePage).setBackgroundResource(0)
-                view.findViewById<TextView>(R.id.classNotes).setBackgroundResource(0)
-                view.findViewById<TextView>(R.id.remainders).setBackgroundResource(0)
-                view.findViewById<TextView>(R.id.collegeMates).setBackgroundResource(0)
-                view.findViewById<TextView>(R.id.rateUs).setBackgroundResource(0)
-                view.findViewById<TextView>(R.id.logOut).setBackgroundResource(0)
-
-                //  dialog.dismiss()
-
-
+                resetBottomSheetSelection(view, R.id.profile)
             }
+
             view.findViewById<TextView>(R.id.rateUs).setOnClickListener {
                 view.findViewById<TextView>(R.id.rateUs).setBackgroundResource(R.drawable.bottom_sheet_dialog_button)
                 view.findViewById<TextView>(R.id.rateUs).setTextColor(resources.getColor(R.color.colorPrimary))
@@ -158,122 +114,108 @@ class AboutActivity : AppCompatActivity() {
                 intent.flags = Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_SINGLE_TOP
                 startActivity(intent)
 
-                view.findViewById<TextView>(R.id.homePage).setBackgroundResource(0)
-                view.findViewById<TextView>(R.id.classNotes).setBackgroundResource(0)
-                view.findViewById<TextView>(R.id.profile).setBackgroundResource(0)
-                view.findViewById<TextView>(R.id.collegeMates).setBackgroundResource(0)
-                view.findViewById<TextView>(R.id.remainders).setBackgroundResource(0)
-                view.findViewById<TextView>(R.id.logOut).setBackgroundResource(0)
-
-                //  dialog.dismiss()
+                resetBottomSheetSelection(view, R.id.rateUs)
             }
+
             view.findViewById<TextView>(R.id.logOut).setOnClickListener {
-
-                view.findViewById<TextView>(R.id.logOut).setBackgroundResource(R.drawable.bottom_sheet_dialog_button)
-                view.findViewById<TextView>(R.id.logOut).setTextColor(resources.getColor(R.color.colorPrimary))
-
-                val logoutDialog = Dialog(this)
-                logoutDialog.setContentView(R.layout.logout_dialog)
-                logoutDialog.setCancelable(false)
-                logoutDialog.setCanceledOnTouchOutside(false)
-                logoutDialog.window!!.setBackgroundDrawableResource(android.R.color.transparent)
-
-                logoutDialog.findViewById<Button>(R.id.btnLogout).setOnClickListener {
-                    val account = GoogleSignIn.getLastSignedInAccount(this)
-                    if (account != null) {
-                        //Some one is already logged in
-                        // Google sign out
-                        // Google sign out
-                        mGoogleSignInClient.signOut().addOnCompleteListener(this) {
-                            // Logout the user from session
-                            AppPreferences.isLogin = false
-                            AppPreferences.studentID = ""
-                            AppPreferences.studentName = ""
-                            val intent = Intent(this, AuthenticationActivity::class.java)
-                            intent.flags = Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_SINGLE_TOP
-                            startActivity(intent)
-                            finish()
-                                                     }
-                    } else {
-                        // Logout the user from session
-                        AppPreferences.isLogin = false
-                        AppPreferences.studentID = ""
-                        AppPreferences.studentName = ""
-                        val intent = Intent(this, AuthenticationActivity::class.java)
-                        intent.flags = Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_SINGLE_TOP
-                        startActivity(intent)
-                        finish()
-
-                    }
-                }
-
-                logoutDialog.findViewById<Button>(R.id.btnCancel).setOnClickListener {
-                    logoutDialog.dismiss()
-                }
-
-                logoutDialog.show()
-
-                view.findViewById<TextView>(R.id.homePage).setBackgroundResource(0)
-                view.findViewById<TextView>(R.id.classNotes).setBackgroundResource(0)
-                view.findViewById<TextView>(R.id.profile).setBackgroundResource(0)
-                view.findViewById<TextView>(R.id.collegeMates).setBackgroundResource(0)
-                view.findViewById<TextView>(R.id.rateUs).setBackgroundResource(0)
-                view.findViewById<TextView>(R.id.remainders).setBackgroundResource(0)
-                //  dialog.dismiss()
-
+                handleLogout(view)
             }
+
             view.findViewById<TextView>(R.id.collegeMates).setOnClickListener {
                 view.findViewById<TextView>(R.id.collegeMates).setBackgroundResource(R.drawable.bottom_sheet_dialog_button)
                 view.findViewById<TextView>(R.id.collegeMates).setTextColor(resources.getColor(R.color.colorPrimary))
+
                 val intent = Intent(this, ClassMatesActivity::class.java)
                 intent.flags = Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_SINGLE_TOP
                 startActivity(intent)
 
-                view.findViewById<TextView>(R.id.homePage).setBackgroundResource(0)
-                view.findViewById<TextView>(R.id.classNotes).setBackgroundResource(0)
-                view.findViewById<TextView>(R.id.profile).setBackgroundResource(0)
-                view.findViewById<TextView>(R.id.remainders).setBackgroundResource(0)
-                view.findViewById<TextView>(R.id.rateUs).setBackgroundResource(0)
-                view.findViewById<TextView>(R.id.logOut).setBackgroundResource(0)
-
-                //  dialog.dismiss()
-
+                resetBottomSheetSelection(view, R.id.collegeMates)
             }
-
 
             dialog.setContentView(view)
-            //dialog.window!!.setBackgroundDrawableResource(android.R.color.transparent)
             dialog.show()
-
-
-
         }
 
-
-
-        btnSubmit.setOnClickListener {
-            if(editFeedback.text.toString().isEmpty()){
-                edtFeedback.error = "Please enter Feedback"
+        binding.btnSubmit.setOnClickListener {
+            val feedback = binding.editFeedback.text.toString().trim()
+            if (feedback.isEmpty()) {
+                binding.edtFeedback.error = "Please enter Feedback"
             } else {
-                edtFeedback.error = null
+                binding.edtFeedback.error = null
 
-                val myRef = FirebaseDatabase.getInstance().getReference().child("feedback_data")
-                myRef.push().setValue(FeedbackData(AppPreferences.studentName,AppPreferences.studentEmailID,editFeedback.text.toString().trim()))
+                val myRef = FirebaseDatabase.getInstance().getReference("feedback_data")
+                myRef.push().setValue(
+                    FeedbackData(
+                        AppPreferences.studentName,
+                        AppPreferences.studentEmailID,
+                        feedback
+                    )
+                )
 
-                showToast("Feedback sent Successfully !")
+                showToast("Feedback sent Successfully!")
 
-                val intent = Intent(this,HomeActivity::class.java)
-                intent.flags = Intent.FLAG_ACTIVITY_CLEAR_TOP
-                intent.flags = Intent.FLAG_ACTIVITY_CLEAR_TASK
+                val intent = Intent(this, HomeActivity::class.java)
+                intent.flags = Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_CLEAR_TASK
                 startActivity(intent)
+            }
+        }
+    }
 
+    private fun resetBottomSheetSelection(view: View, selectedId: Int) {
+        val ids = listOf(
+            R.id.homePage,
+            R.id.classNotes,
+            R.id.remainders,
+            R.id.profile,
+            R.id.collegeMates,
+            R.id.rateUs,
+            R.id.logOut
+        )
+        ids.filter { it != selectedId }.forEach { id ->
+            view.findViewById<TextView>(id).setBackgroundResource(0)
+            view.findViewById<TextView>(id).setTextColor(resources.getColor(R.color.colorBlack))
+        }
+    }
+
+    private fun handleLogout(view: View) {
+        view.findViewById<TextView>(R.id.logOut).setBackgroundResource(R.drawable.bottom_sheet_dialog_button)
+        view.findViewById<TextView>(R.id.logOut).setTextColor(resources.getColor(R.color.colorPrimary))
+
+        val logoutDialog = Dialog(this)
+        logoutDialog.setContentView(R.layout.logout_dialog)
+        logoutDialog.setCancelable(false)
+        logoutDialog.setCanceledOnTouchOutside(false)
+        logoutDialog.window!!.setBackgroundDrawableResource(android.R.color.transparent)
+
+        logoutDialog.findViewById<Button>(R.id.btnLogout).setOnClickListener {
+            val account = GoogleSignIn.getLastSignedInAccount(this)
+            if (account != null) {
+                mGoogleSignInClient.signOut().addOnCompleteListener(this) {
+                    logoutUser()
+                }
+            } else {
+                logoutUser()
             }
         }
 
+        logoutDialog.findViewById<Button>(R.id.btnCancel).setOnClickListener {
+            logoutDialog.dismiss()
+        }
+
+        logoutDialog.show()
+    }
+
+    private fun logoutUser() {
+        AppPreferences.isLogin = false
+        AppPreferences.studentID = ""
+        AppPreferences.studentName = ""
+        val intent = Intent(this, AuthenticationActivity::class.java)
+        intent.flags = Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_SINGLE_TOP
+        startActivity(intent)
+        finish()
     }
 
     private fun showToast(message: String?) {
-        Toast.makeText(this,message.toString(),Toast.LENGTH_SHORT).show()
-
+        Toast.makeText(this, message.toString(), Toast.LENGTH_SHORT).show()
     }
 }

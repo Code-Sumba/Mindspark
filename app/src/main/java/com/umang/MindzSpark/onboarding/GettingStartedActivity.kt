@@ -6,6 +6,7 @@ import android.os.Bundle
 import com.umang.MindzSpark.R
 import com.umang.MindzSpark.auth.AuthenticationActivity
 import com.umang.MindzSpark.databinding.ActivityGettingStartedBinding
+import com.umang.MindzSpark.general.HomeActivity
 
 class GettingStartedActivity : AppCompatActivity() {
 
@@ -20,7 +21,7 @@ class GettingStartedActivity : AppCompatActivity() {
 
         // Set up the button click listener
         binding.btnGetStarted.setOnClickListener {
-            val intent = Intent(this, AuthenticationActivity::class.java)
+            val intent = Intent(this, HomeActivity::class.java)
             intent.flags = Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_SINGLE_TOP
             startActivity(intent)
         }

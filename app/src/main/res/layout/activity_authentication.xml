@@ -156,6 +156,11 @@
                 android:layout_marginTop="30dp"
                 android:padding="10dp"
                 />
+            <ProgressBar
+                android:id="@+id/loadingProgress"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:visibility="gone" />
 
             <TextView
                 android:layout_width="wrap_content"

@@ -40,7 +40,7 @@
             android:layout_marginStart="10dp"
             android:layout_marginTop="3dp" />
 
-        <include
+        <TextView
             android:id="@+id/profileTextLayout"
             layout="@layout/classmate_profile_layout"
             android:layout_width="wrap_content"

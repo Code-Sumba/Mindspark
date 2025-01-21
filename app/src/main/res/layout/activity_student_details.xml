@@ -144,8 +144,10 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:inputType="none"
-                    android:backgroundTint="@color/colorWhite"
+                    android:hint="Select your college"
+                    android:text="Please select your college"
                     />
+
 
             </com.google.android.material.textfield.TextInputLayout>
 
@@ -165,7 +167,7 @@
                 android:layout_alignParentStart="true"
                 android:layout_alignParentEnd="true">
 
-<!--
+
                 <com.google.android.material.textfield.TextInputEditText
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
@@ -174,7 +176,7 @@
                     android:id="@+id/editGraduationYear"
                     android:background="@color/colorWhite"
                     android:textColor="#000" />
--->
+
 
                 <AutoCompleteTextView
                     android:layout_width="match_parent"
@@ -190,8 +192,10 @@
 
             <com.google.android.material.textfield.TextInputLayout
                 android:layout_width="match_parent"
+
                 android:layout_height="wrap_content"
-                android:hint="@string/department"
+
+
                 android:layout_below="@id/edtGraduationYear"
                 android:layout_marginTop="25dp"
                 android:id="@+id/edtDepartment"
@@ -208,6 +212,8 @@
                     android:layout_height="wrap_content"
                     android:inputType="none"
                     android:id="@+id/deptSpinner"
+                    android:contentDescription="@string/department"
+
                     android:backgroundTint="@color/colorWhite"
                     />
 
@@ -215,6 +221,7 @@
 
             <com.google.android.material.textfield.TextInputLayout
                 android:layout_width="match_parent"
+
                 android:layout_height="wrap_content"
                 android:hint="@string/section"
                 android:layout_below="@id/edtDepartment"
@@ -234,6 +241,7 @@
                     android:inputType="none"
                     android:id="@+id/sectionSpinner"
                     android:background="@color/colorWhite"
+
                     android:backgroundTint="@color/colorWhite"
                     />
 

@@ -7,6 +7,7 @@ import androidx.recyclerview.widget.RecyclerView
 import com.umang.MindzSpark.databinding.ClassmateViewCardBinding
 import com.umang.MindzSpark.modals.StudentData
 
+
 class ClassMatesAdapter(
     private val context: Context,
     private val classMatesList: ArrayList<StudentData>
@@ -40,7 +41,7 @@ class ClassMatesAdapter(
             val studentName = classMates.studentName
             val nameParts = studentName?.split(" ") ?: listOf()
 
-            binding.profileText.text = when (nameParts.size) {
+            binding.profileTextLayout.text = when (nameParts.size) {
                 1 -> studentName?.firstOrNull()?.toString()
                 else -> {
                     val firstNameInitial = nameParts.firstOrNull()?.firstOrNull()?.toString()
