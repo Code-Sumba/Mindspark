@@ -2,7 +2,7 @@
 <h3><i>Start Succeeding</i></h3>
 
 <div align="center">
-  <img alt="Mindzspark App" src=".\app\src\main\res\drawable\sutmate.webp" />
+  <img alt="Mindzspark App" src="app/src/main/res/drawable/stumate.webp" />
 </div>
 
 <br/>
